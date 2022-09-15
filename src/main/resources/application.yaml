@@ -1,0 +1,33 @@
+server:
+  port : 8081
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.boot.autoconfigure: INFO
+    org.springframework.web.client.RestTemplate: DEBUG
+
+spring:
+  thymeleaf:
+    cache: false
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: oauth2-demo-client
+            client-secret: WnKbuMOy2AXlMZM2B5bBTmbzLeTwfAKz
+            clientName: FPT
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8081/login/oauth2/code/oauth2-demo-client
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          keycloak:
+            issuer-uri : http://localhost:8080/realms/khangnv
+            user-info-uri: http://localhost:8080/realms/khangnv/protocol/openid-connect/userinfo
+
