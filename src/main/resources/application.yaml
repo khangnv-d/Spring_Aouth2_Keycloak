@@ -14,20 +14,25 @@ spring:
     cache: false
   security:
     oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: oauth2-demo-client
-            client-secret: iQnFZyuvKMvpwsI0rcbEB1nEF2rbRQBN
-            clientName: KhangNV
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8081/login/oauth2/code/oauth2-demo-client
-            scope:
-              - openid
-              - profile
-              - email
-        provider:
-          keycloak:
-            issuer-uri : http://localhost:8080/realms/khangnv
-            user-info-uri: http://localhost:8080/realms/khangnv/protocol/openid-connect/userinfo
+      resource-server:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/khangnv
+          jwk-set-uri: http://localhost:8080/realms/khangnv/protocol/openid-connect/certs
+#      client:
+#        registration:
+#          keycloak:
+#            client-id: oauth2-demo-client
+#            client-secret: iQnFZyuvKMvpwsI0rcbEB1nEF2rbRQBN
+#            clientName: KhangNV
+#            authorization-grant-type: authorization_code
+#            redirect-uri: http://localhost:8081/login/oauth2/code/oauth2-demo-client
+#            scope:
+#              - openid
+#              - profile
+#              - email
+#        provider:
+#          keycloak:
+#            issuer-uri : http://localhost:8080/realms/khangnv
+#            user-info-uri: http://localhost:8080/realms/khangnv/protocol/openid-connect/userinfo
+
 
