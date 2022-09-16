@@ -18,8 +18,8 @@ spring:
         registration:
           keycloak:
             client-id: oauth2-demo-client
-            client-secret: WnKbuMOy2AXlMZM2B5bBTmbzLeTwfAKz
-            clientName: FPT
+            client-secret: iQnFZyuvKMvpwsI0rcbEB1nEF2rbRQBN
+            clientName: KhangNV
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8081/login/oauth2/code/oauth2-demo-client
             scope:
