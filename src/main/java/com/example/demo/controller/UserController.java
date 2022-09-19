@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
     private final RoleService roleService;
 
-    @GetMapping
+    @GetMapping("list")
     public List<UserRepresentation> findAll() {
         return userService.findAllUsers();
     }
@@ -35,7 +35,7 @@ public class UserController {
         return userService.findByUsername(username);
     }
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<URI> createUser(@RequestBody User newUser) {
         Response response = userService.createUser(newUser);
 
@@ -45,10 +45,24 @@ public class UserController {
         return ResponseEntity.created(response.getLocation()).build();
     }
 
+    @PostMapping("/{userId}/role/{roleName}")
     public void assignRole(@PathVariable String userId,
                            @PathVariable String roleName) {
         RoleRepresentation role = roleService.findRoleByName(roleName);
         userService.assignRole(userId, role);
+    }
+
+    @PutMapping("/{userId}")
+    public void updateUser(
+            @PathVariable("userId") String userId,
+            @RequestBody User newUser) {
+        userService.updateUser(userId, newUser);
+
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
     }
 
 }
