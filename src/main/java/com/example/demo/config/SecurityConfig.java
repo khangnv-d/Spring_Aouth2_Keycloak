@@ -13,6 +13,15 @@ public class SecurityConfig {
         http.cors()
                 .and()
                 .authorizeHttpRequests()
+                .antMatchers(
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/webjars/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-resources/**",
+                        "/webjars/**",
+                        "/null/swagger-resources/**")
+                    .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
