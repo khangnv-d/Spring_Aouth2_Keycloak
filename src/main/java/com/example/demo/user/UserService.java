@@ -1,9 +1,11 @@
 package com.example.demo.user;
 
+import com.example.demo.apiexception.RequestException;
 import com.example.demo.config.KeycloakClientConfig;
 import com.example.demo.constants.KeycloakClientInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,7 +40,9 @@ public class UserService {
     }
 
     public UserRepresentation findById(String id) {
-        return keycloak.realm(realm).users().get(id).toRepresentation();
+        if (!isUserExisted(id)) {
+            throw new RequestException("Not Found User Has Id " + id);
+        } else return keycloak.realm(realm).users().get(id).toRepresentation();
     }
 
     public void assignRole(String userId, RoleRepresentation role) {
@@ -46,7 +51,9 @@ public class UserService {
 
     public Response createUser(User userRequest) {
         CredentialRepresentation password = preparePasswordRepresentation(userRequest.getPassword());
-        UserRepresentation user = prepareUserRepresentation(userRequest, password);
+        List<CredentialRepresentation> credentialList = new ArrayList<>();
+        credentialList.add(password);
+        UserRepresentation user = prepareUserRepresentation(userRequest, credentialList);
 
         return keycloak.realm(realm).users().create(user);
     }
@@ -60,13 +67,72 @@ public class UserService {
         return credential;
     }
 
-    private UserRepresentation prepareUserRepresentation(User user, CredentialRepresentation credential) {
+    private UserRepresentation prepareUserRepresentation(User user, List<CredentialRepresentation> credential) {
         UserRepresentation newUser = new UserRepresentation();
-        newUser.setUsername(user.getUsername());
-        newUser.setCredentials((List<CredentialRepresentation>) credential);
+
+        String username = user.getEmail();
+        if (isUsernameTaken(username)) throw new RequestException("Username" + username + " has been taken ");
+        else newUser.setUsername(user.getUsername());
+
+        String email = user.getEmail();
+        if (isEmailTaken(email)) throw new RequestException("Email" + email + " has been taken ");
+        else newUser.setEmail(user.getEmail());
+
+        newUser.setCredentials(credential);
         newUser.setEnabled(true);
 
         return newUser;
+    }
+
+    //    @Transactional
+    public void updateUser(String id, User updateUser) {
+
+        if (!isUserExisted(id)) {
+            throw new RequestException("Not found user has Id " + id);
+        } else {
+            UserRepresentation user = findById(id);
+            UserResource userResource = getUserResource(id);
+            user.setUsername(updateUser.getUsername());
+            CredentialRepresentation password = preparePasswordRepresentation(updateUser.getPassword());
+            userResource.resetPassword(password);
+            user.setEmail(updateUser.getEmail());
+
+            userResource.update(user);
+        }
+    }
+
+    public void deleteUser(String id) {
+
+        if (!isUserExisted(id)) {
+            throw new RequestException("Not found user has Id " + id);
+        } else {
+            UserRepresentation user = findById(id);
+            user.setEnabled(false);
+            getUserResource(id).update(user);
+        }
+    }
+
+    private UserResource getUserResource(String id) {
+        return keycloak.realm(realm).users().get(id);
+    }
+
+    private boolean isUserExisted(String id) {
+        return findAllUsers().stream().anyMatch(user -> user.getId().equals(id));
+    }
+
+    private boolean isUsernameTaken(String username) {
+        return findAllUsers().stream().anyMatch(u -> u.getUsername().equals(username));
+    }
+
+    private boolean isEmailTaken(String email) {
+        return findAllUsers().stream().anyMatch(u -> u.getEmail().equals(email));
+    }
+
+    private List<CredentialRepresentation> addAttributeToListCredential(CredentialRepresentation field) {
+        List<CredentialRepresentation> credentialList = new ArrayList<>();
+        credentialList.add(field);
+
+        return credentialList;
     }
 
 }
