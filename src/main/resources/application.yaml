@@ -35,4 +35,3 @@ spring:
 #            issuer-uri : http://localhost:8080/realms/khangnv
 #            user-info-uri: http://localhost:8080/realms/khangnv/protocol/openid-connect/userinfo
 
-
