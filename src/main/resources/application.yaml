@@ -1,5 +1,5 @@
 server:
-  port : 8081
+  port: 8081
 
 logging:
   level:
@@ -18,6 +18,13 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/khangnv
           jwk-set-uri: http://localhost:8080/realms/khangnv/protocol/openid-connect/certs
+  minio:
+    url: http://172.17.0.1:9000
+    bucket: khangnv
+    access-key: minioadmin
+    secret-key: minioadmin
+    secure: false
+
 #      client:
 #        registration:
 #          keycloak:
