@@ -112,7 +112,7 @@ public class FileController {
         fileService.downloadObject(bucketName, objectName, response);
     }
 
-    @DeleteMapping ("delete/{bucketName}/{dateDir}/{fileName}")
+    @DeleteMapping("delete/{bucketName}/{dateDir}/{fileName}")
     public JSONObject deleteResource(@PathVariable String bucketName,
                                      @PathVariable String dateDir,
                                      @PathVariable String fileName) {
