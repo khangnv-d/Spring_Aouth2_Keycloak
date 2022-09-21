@@ -14,7 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -154,5 +157,33 @@ public class FileService {
                         .object(objectName)
                         .build());
         return stream;
+    }
+
+    public void downloadObject(String bucketName, String objectName, HttpServletResponse response) {
+        try {
+            InputStream inputStream = getObject(bucketName, objectName);
+            if (inputStream == null) {
+                return;
+            }
+            String fileName = objectName.substring(objectName.indexOf("/") + 1, objectName.length());
+            response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+            ServletOutputStream servletOutputStream = response.getOutputStream();
+            int len;
+            byte[] buffer = new byte[1024];
+            while ((len = inputStream.read(buffer)) > 0) {
+                servletOutputStream.write(buffer, 0, len);
+            }
+            servletOutputStream.flush();
+            inputStream.close();
+            servletOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SneakyThrows
+    public boolean removeObject(String bucketName, String objectName) {
+        minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(objectName).build());
+        return true;
     }
 }

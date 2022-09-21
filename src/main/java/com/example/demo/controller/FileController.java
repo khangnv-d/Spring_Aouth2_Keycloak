@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.io.file.FileMode;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.demo.config.MinIoClientConfig;
@@ -13,13 +12,12 @@ import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import io.minio.messages.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -99,6 +97,36 @@ public class FileController {
             ex.printStackTrace();
             result.set("message", ex.getMessage());
         }
+        return result;
+    }
+
+    @GetMapping("download/{bucketName}/{dateDir}/{fileName}")
+    public void downloadResource(@PathVariable String bucketName,
+                                 @PathVariable String dateDir,
+                                 @PathVariable String fileName,
+                                 HttpServletResponse response) {
+        if (bucketName == null || fileName == null || dateDir == null) {
+            return;
+        }
+        String objectName = dateDir + "/" + fileName;
+        fileService.downloadObject(bucketName, objectName, response);
+    }
+
+    @DeleteMapping ("delete/{bucketName}/{dateDir}/{fileName}")
+    public JSONObject deleteResource(@PathVariable String bucketName,
+                                     @PathVariable String dateDir,
+                                     @PathVariable String fileName) {
+        JSONObject result = JSONUtil.createObj();
+        result.set("code", "fail");
+        if (bucketName == null || fileName == null || dateDir == null) {
+            result.set("message", "Please fill correctly all parameters");
+            return result;
+        }
+        String objectName = dateDir + "/" + fileName;
+        boolean isDeleteSuccess = fileService.removeObject(bucketName, objectName);
+        result.set("code", isDeleteSuccess ? "success" : "fail");
+        result.set("message", isDeleteSuccess ? "delete successfully" : "delete failed");
+
         return result;
     }
 
